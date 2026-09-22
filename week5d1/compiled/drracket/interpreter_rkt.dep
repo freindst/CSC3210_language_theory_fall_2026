@@ -1,0 +1,1 @@
+("9.3" tarm64osx ("802bffdd3c937cd7cc3e9777659bab1606a2666c" . "1e2a214034b273acbbb8823ebe2e4a4fffffdad6") #"/Users/yimingliao/Library/CloudStorage/GoogleDrive-freindst@gmail.com/My Drive/teaching/2026Fall/Programming Language Theory/CSC3210_language_theory_fall_2026/week5d1/util.rkt" (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt"))
