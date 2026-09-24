@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Racket: Run",
+      "type": "process",
+      "command": "/Applications/Racket v9.3/bin/racket",
+      "args": ["${file}"],
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Racket: Compile (.zo)",
+      "type": "process",
+      "command": "/Applications/Racket v9.3/bin/raco",
+      "args": ["make", "-v", "${file}"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Racket: Build executable",
+      "type": "process",
+      "command": "/Applications/Racket v9.3/bin/raco",
+      "args": ["exe", "-o", "${fileDirname}/${fileBasenameNoExtension}", "${file}"],
+      "problemMatcher": []
+    }
+  ]
+}

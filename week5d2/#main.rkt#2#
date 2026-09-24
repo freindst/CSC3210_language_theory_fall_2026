@@ -10,9 +10,14 @@
 ;(parse 1) -> error
 (parse 'a)
 (parse 'b)
-(parse 1)
+(parse 10)
+(parse '(math 32 + 32))
 ;(var-exp a): interpreter will find out the a as a variable name from the environment, and tell us what it is
-
+(process (parse 'a))
+(process (parse 'b))
+(process (parse 'c))
+(process (parse 10))
+(process (parse '(math a + (math (math 10 * "string") + b))))
 ;homework week5 day 1, 9/22
 ;test "process" function from interpreter, and confirm that it works in main
 ;(test (execute (prase 'a))) -> 1
