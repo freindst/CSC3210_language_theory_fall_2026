@@ -24,3 +24,10 @@
 ;(test (execute (prase 'a))) -> 1
 ;(test (execute (parse 'c'))) -> "ERROR: variable not found"
 ;(test (execute (parse 1))) -> a certain error
+
+;if statement
+;1. make the boolean expression work
+;1a. define the boolean operator, so the parser knows what is a boolean, compared to what is a math
+;1b. then you can based on its a boolean expression, return logic operation results instead of math result
+;ask (a > b) (bulk-exp true_statments) (bulk-exp false_statements)
+;2. make the new if-condition, ask-exp: if (process (parsed boolean-exp)) (process (parse true_statements)) (process (parse (false_statements))
