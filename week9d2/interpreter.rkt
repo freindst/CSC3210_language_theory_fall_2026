@@ -128,10 +128,10 @@
                             (new_exp 
                                 (list
                                     'while-exp
-                                    (cadr parsed-exp)
+                                    (caddr parsed-exp)
                                     (append
-                                        (cadr (cdddr exp))
-                                        (cdr (cadddr exp))
+                                        (cadr (cdddr parsed-exp))
+                                        (cdr (cadddr parsed-exp))
                                     )
                                 )
                             )

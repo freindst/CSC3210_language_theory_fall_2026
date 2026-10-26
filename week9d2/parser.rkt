@@ -89,7 +89,7 @@
             'list-exp
             (map parse (cadr exp))
           )
-          (parse (cadr exp))
+          (parse (caddr exp))
           (cons
             'list-exp
             (map parse (cadddr exp))
