@@ -57,7 +57,7 @@
     (cond
       ((null? lst) left_part)
       ((eq? (car (car lst)) key) (append left_part (list (list key value)) (cdr lst)))
-      (else (update_pair (list (car lst)) (cdr lst) key value))
+      (else (update_pair (append left_part (list (car lst))) (cdr lst) key value))
       )
     )
   )

@@ -1,6 +1,16 @@
 #lang racket
 (require "util.rkt")
 
+;a return happened when the nearest #return slot is no longer #none
+;outside of any function there is no slot, resolve_env gives void, so it never stops
+(define
+    has_returned
+    (lambda ()
+        (let ((ret (resolve_env environment '|#return|)))
+            (not (or (void? ret) (eq? ret '|#none|))))
+    )
+)
+
 ;homework week5 day 1, 9/22
 ;create a function, that "process" the parser's results
 ;if it is a var-exp, resolve the value if can find, otherwise output void error
@@ -51,10 +61,14 @@
                             (caddr parsed-exp))
                     )
                     (begin
-                        (push_scope_to_environment new_scope)
-                        (define ret (process expression_lst))
+                        ;every function owns a #return slot, initialized as #none (void means "not exists" in resolve)
+                        (push_scope_to_environment (cons (list '|#return| '|#none|) new_scope))
+                        (process expression_lst)
+                        ;read the slot before the scope is popped
+                        (define ret (resolve_env environment '|#return|))
                         (pop_scope_from_environment)
-                        ret
+                        ;no return happened, the default return value is void
+                        (if (eq? ret '|#none|) (void) ret)
                     )
                 )
             )
@@ -93,15 +107,16 @@
                 ;if it is a return, update the value of the varaible scope of the "#return" to be the value
                 ;and it also stop the iterations of the execution
                 ;if it is not a return, we simply run this expression, and make the iteration continues
+                ;a return may also happen inside a nested ask/while, so check the #return slot after each statement
                 (cond
                     ((null? (cdr parsed-exp)) (void))
-                    ((equal? 'return-exp (car (cadr parsed-exp))) ; (list-exp (return-exp (var-exp c)))
-                        (process (cadr (cadr parsed-exp)))
-                    )
-                    (else 
+                    (else
                         (begin
                             (process (cadr parsed-exp))
-                            (process (cons 'list-exp (cddr parsed-exp)))
+                            (if (has_returned)
+                                (void)
+                                (process (cons 'list-exp (cddr parsed-exp)))
+                            )
                         )
                     )
                 )
@@ -113,7 +128,11 @@
                         (push_scope_to_environment '())
                         (process (caddr parsed-exp)) ;body
                         (pop_scope_from_environment)
-                        (process parsed-exp)    ;next while-loop
+                        ;stop the loop when the body returned
+                        (if (has_returned)
+                            (void)
+                            (process parsed-exp)    ;next while-loop
+                        )
                     )
                     (void)
                 )
@@ -123,7 +142,7 @@
                     (push_scope_to_environment '())
                     (process (cadr parsed-exp))
                     (pop_scope_from_environment)
-                    (if (process (caddr parsed-exp))
+                    (if (and (not (has_returned)) (process (caddr parsed-exp)))
                         (process parsed-exp)
                         (void)
                     )
@@ -156,6 +175,9 @@
                 )
             
             )
+            ;store the value into the nearest #return slot, which belongs to the current function
+            ((eq? (car parsed-exp) 'return-exp)
+                (wolf_env environment '|#return| (process (cadr parsed-exp))))
             ((eq? (car parsed-exp) 'fire-exp)
                 (displayln (process (cadr parsed-exp))))
             ;'new-func-exp

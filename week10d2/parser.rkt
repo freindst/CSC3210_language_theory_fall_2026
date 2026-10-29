@@ -58,8 +58,8 @@
         (list
           'ask-exp
           (parse (cadr exp))
-          (cons 'list-exp (caddr exp))
-          (cons 'list-exp (cadddr exp))
+          (cons 'list-exp (map parse (caddr exp)))
+          (cons 'list-exp (map parse (cadddr exp)))
         )
       )
       ;while (boolean S) (S1, S2, S3, ...)
