@@ -211,8 +211,8 @@
 
 (define
   push_scope_to_environment
-  (lambda ()
-    (set! environment (cons '() environment))
+  (lambda (scope)
+    (set! environment (cons scope environment))
   )
 )
 

@@ -44,19 +44,17 @@
                     (
                         ;cons the parameter list with the original environment
                         ;(((var-exp a) (num-exp 1)) ((var-exp b) (var-exp a)))
-                        (my_env 
-                            (cons (map (lambda (pair) (list (cadr (car pair)) (process (cadr pair)))) (cadr parsed-exp))
-                        environment))
+                        (new_scope
+                            (map (lambda (pair) (list (cadr (car pair)) (process (cadr pair)))) (cadr parsed-exp))
+                        )
                         (expression_lst
                             (caddr parsed-exp))
-                            ;(set! environment (cdr environment)))
-                        (ret_val (void))
                     )
                     (begin
-                        (update_base_environment my_env)
-                        (set! ret_val (cadr (cadr (process expression_lst))))
-                        (update_base_environment (cdr environment))
-                        ret_val
+                        (push_scope_to_environment new_scope)
+                        (define ret (process expression_lst))
+                        (pop_scope_from_environment)
+                        ret
                     )
                 )
             )
@@ -91,12 +89,28 @@
                 )
             )
             ((eq? (car parsed-exp) 'list-exp)
-                (map process (cdr parsed-exp))
+                ;walk through each statement, and check if it is return
+                ;if it is a return, update the value of the varaible scope of the "#return" to be the value
+                ;and it also stop the iterations of the execution
+                ;if it is not a return, we simply run this expression, and make the iteration continues
+                (cond
+                    ((null? (cdr parsed-exp)) (void))
+                    ((equal? 'return-exp (car (cadr parsed-exp))) ; (list-exp (return-exp (var-exp c)))
+                        (process (cadr (cadr parsed-exp)))
+                    )
+                    (else 
+                        (begin
+                            (process (cadr parsed-exp))
+                            (process (cons 'list-exp (cddr parsed-exp)))
+                        )
+                    )
+                )
+                ;(map process (cdr parsed-exp))
             )
             ((eq? (car parsed-exp) 'while-exp)
                 (if (process (cadr parsed-exp))
                     (begin
-                        (push_scope_to_environment)
+                        (push_scope_to_environment '())
                         (process (caddr parsed-exp)) ;body
                         (pop_scope_from_environment)
                         (process parsed-exp)    ;next while-loop
@@ -106,7 +120,7 @@
             )
             ((eq? (car parsed-exp) 'do-while-exp)
                 (begin
-                    (push_scope_to_environment)
+                    (push_scope_to_environment '())
                     (process (cadr parsed-exp))
                     (pop_scope_from_environment)
                     (if (process (caddr parsed-exp))
@@ -117,7 +131,7 @@
             )
             ((eq? (car parsed-exp) 'for-exp)
                 (begin
-                    (push_scope_to_environment)
+                    (push_scope_to_environment '())
                     (process (cadr parsed-exp))
                     ;let's reassemble it into the manner as a while-loop
                     ;caddr -: boolean
@@ -144,9 +158,28 @@
             )
             ((eq? (car parsed-exp) 'fire-exp)
                 (displayln (process (cadr parsed-exp))))
+            ;'new-func-exp
+            ;(map parse (caddr exp))
+            ;(list
+             ; 'list-exp
+              ;(map parse (cadddr exp))
+            ;)
+          ;)
+          ((eq? (car parsed-exp) 'new-func-exp) parsed-exp)
+            ((eq? (car parsed-exp) 'call-exp)
+                (let*
+                    (
+                        (func (resolve_env environment (cadr (cadr parsed-exp))))
+                        (function (list 'func-exp 
+                            (create_pair_list '() (cadr func) (caddr parsed-exp))
+                            (caddr func)
+                        ))
+                    )
+                    (process function)
+                )
+            )
             (else (displayln "ERROR: expression has not been supported yet."))
-    )
-    )
+    ))
 )
 
 (provide (all-defined-out))

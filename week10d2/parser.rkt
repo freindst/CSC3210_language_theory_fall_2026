@@ -11,6 +11,9 @@
       ((number? exp) (list 'num-exp exp))
       ((string? exp) (list 'string-exp exp))
       ((null? exp) (displayln "ERROR: empty statement"))
+      ((equal? (car exp) 'main)
+        (cons 'list-exp (map parse (cdr exp)))
+      )
       ((and (equal? (length exp) 3) (equal? (cadr exp) '=))
         (list 'assign-exp 
           (list
@@ -45,7 +48,7 @@
           (list
             'func-exp
             (create_pair_list '() (map parse (cadr exp)) (map parse (cadddr exp)))
-            (cons 'bulk-exp (map parse (caddr exp)))
+            (cons 'list-exp (map parse (caddr exp)))
           )
           (displayln "PARSER ERROR: this is not a valid anonymous function definition."))
       )
@@ -101,6 +104,40 @@
         )
       )
       ((equal? 'fire (car exp)) (list 'fire-exp (parse (cadr exp))))
+  ;(func add (a b) (
+  ;  (c = a + b)
+  ;  (return c)
+  ;)) 
+      ((equal? 'func (car exp))
+        (list
+          'assign-exp
+          (list 
+            (parse (cadr exp))
+          ;do we store the parsed function definition in the variable scope or do we store the non-parsed form
+            (list
+              'new-func-exp
+              (map parse (caddr exp))
+              (cons
+                'list-exp
+                (map parse (cadddr exp))
+              )
+            )
+          )
+        )
+      )
+      ((equal? 'return (car exp))
+        (list
+          'return-exp
+          (parse (cadr exp))
+        )
+      )
+      ((equal? 'call (car exp))
+        (list
+          'call-exp
+          (parse (cadr exp))
+          (map parse (caddr exp))
+        )
+      )
       (else (displayln "PARSER ERROR: the statement has not been supported yet."))
     )
   )
