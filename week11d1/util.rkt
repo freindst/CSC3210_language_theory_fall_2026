@@ -1,11 +1,26 @@
 #lang racket
+
 (define
   scope
   (list ;key-value pairs
-   (list 'a 1) ;(#symbol value)
-   '(b 2)
+   (list 'a (list 'num 1)) ;(#symbol value)
+   (list 'b (list 'num 2))
+   (list 'c (list 'str "ccc"))
+   (list 'e (list 'bool #t))
+   (list 'f (list 'bool #f))
    )
   )
+
+;data types
+;#data-type
+;#number?: num
+;#symbol?: sym
+;#boolean?: bool
+;#string?: str
+;#function?: func
+;#class?: cls: it holds the definition of the class
+;#object?: obj
+;#void?: |void
 
 ;var_env:= var_scop x (var_env)
 (define
@@ -165,13 +180,21 @@
   do_math
     (lambda
       (op left_operand right_operand)
-      (cond
-        ((eq? '+ op) (+ left_operand right_operand))
-        ((eq? '- op) (- left_operand right_operand))
-        ((eq? '* op) (* left_operand right_operand))
-        ((eq? '/ op) (/ left_operand right_operand))
-        ((eq? '// op) (quotient left_operand right_operand))
-        ((eq? '% op) (modulo left_operand right_operand))
+      (display left_operand)
+      (display right_operand)
+      (let
+        (
+          (left_val (check_type 'num left_operand))
+          (right_val (check_type 'num right_operand))
+        )
+        (cond
+          ((eq? '+ op) (+ left_val right_val))
+          ((eq? '- op) (- left_val right_val))
+          ((eq? '* op) (* left_val right_val))
+          ((eq? '/ op) (/ left_val right_val))
+          ((eq? '// op) (quotient left_val right_val))
+          ((eq? '% op) (modulo left_val right_val))
+        )
       )
     )
 )
@@ -181,13 +204,14 @@
     (lambda
       (op left_operand right_operand)
       (cond
-        ((eq? '> op) (> left_operand right_operand))
-        ((eq? '>= op) (>= left_operand right_operand))
-        ((eq? '< op) (< left_operand right_operand))
-        ((eq? '<= op) (<= left_operand right_operand))
-        ((eq? '== op) (eq? left_operand right_operand))
-        ((eq? '&& op) (and left_operand right_operand))
-        ((eq? '|| op) (or left_operand right_operand))
+        ((eq? '> op) (> (check_type 'num left_operand) (check_type 'num right_operand)))
+        ((eq? '>= op) (>= (check_type 'num left_operand) (check_type 'num right_operand)))
+        ((eq? '< op) (< (check_type 'num left_operand) (check_type 'num right_operand)))
+        ((eq? '<= op) (<= (check_type 'num left_operand) (check_type 'num right_operand)))
+        ((eq? '== op) (eq? (cadr left_operand) (cadr right_operand)))
+        ((eq? '=== op) (and (eq? (car left_operand) (car right_operand)) (calculate_boolean '== left_operand right_operand)))
+        ((eq? '&& op) (and (check_type 'bool left_operand) (check_type 'bool right_operand)))
+        ((eq? '|| op) (or (check_type 'bool left_operand) (check_type 'bool right_operand)))
       ))
 )
 
@@ -220,6 +244,17 @@
   pop_scope_from_environment
   (lambda ()
     (set! environment (cdr environment))
+  )
+)
+
+;by given (num 1), we need to check if this is the date type num we want
+(define
+  check_type
+  (lambda(type pair) (
+    if (equal? type (car pair))
+      (cadr pair)
+      (error (string-append "Date type error: expect " (symbol->string type) "."))
+    )
   )
 )
 

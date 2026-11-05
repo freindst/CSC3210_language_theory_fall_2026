@@ -27,24 +27,25 @@
             ;programmer should be responsible for what he wrote, rather than hand it to the error handler
             ;since the parser already validate the statement of the language, interpreter can omit this stage, but it is still risky if you do not use the parser before interpreter
             ((equal? 'var-exp (car parsed-exp)) (resolve_env environment (cadr parsed-exp)))
+            ;('num-exp ())
             ((equal? 'num-exp (car parsed-exp)) (car (cdr parsed-exp)))
             ;'(assign-exp ((var-exp a) (num-exp 2)))
             ((equal? 'assign-exp (car parsed-exp))
                 (wolf_env environment (cadr (car (cadr parsed-exp))) (process (cadr (cadr parsed-exp)))))
             ((eq? 'math-exp (car parsed-exp))   ;math-exp + (math-exp + ...) (num-exp 10)
-                (cond
-                    ;((or (void? (process (caddr parsed-exp)) ) (process (cadddr parsed-exp))))
-                    ((and (number? (process (caddr parsed-exp)) ) (number? (process (cadddr parsed-exp))))
-                        (do_math (cadr parsed-exp) (process (caddr parsed-exp)) (process (cadddr parsed-exp))))
-                    (else (displayln "INTERPRETOR ERROR: non-numeric cannot apply math."))
+                (do_math 
+                    (cadr parsed-exp) 
+                    (process (caddr parsed-exp))
+                    (process (cadddr parsed-exp))
                 )
             )
             ((eq? 'boolean-exp (car parsed-exp))
                 (cond
                     ;boolean True void void
-                    ((void? (caddr parsed-exp)) (if (eq? 'True (cadr parsed-exp)) #t #f))
+                    ((void? (caddr parsed-exp)) (if (eq? 'True (cadr parsed-exp)) ('bool #t) ('bool #f)))
                     ;boolean ! (var-exp a) void
-                    ((void? (cadddr parsed-exp)) (not (process (caddr parsed-exp))))
+                    ;process (var-exp a) -> ('bool #t)
+                    ((void? (cadddr parsed-exp)) ('bool (not (cadr (process (caddr parsed-exp))))))
                     ;boolean > (num-exp 1) (var-exp a)
                     (else (calculate_boolean (cadr parsed-exp) (process (caddr parsed-exp)) (process (cadddr parsed-exp))))
                 )

@@ -3,16 +3,18 @@
 (require "util.rkt")
 (require "interpreter.rkt")
 
+(displayln environment)
+(parse '(
+  main
+  (fire (a + b))
+))
+;(check_type 'num '(num 1))
+;(check_type 'num '(str "111"))
 (process (parse '(
   main
-  (a = 1)
-  (b = 2)
-  (func add (a b) (
-    (c = (a + b))
-    (return c)
-  ))
-  (c = (call add (a b)))
-  (fire c)
+  (fire (a > b))
+  (fire (e && f))
+  
 )))
 
 ;### homework: greatest common divisor
