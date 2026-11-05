@@ -247,13 +247,13 @@
   )
 )
 
-;by given (num 1), we need to check if this is the date type num we want
+;by given (num 1), we need to check if this is the data type num we want
 (define
   check_type
   (lambda(type pair) (
     if (equal? type (car pair))
       (cadr pair)
-      (error (string-append "Date type error: expect " (symbol->string type) "."))
+      (error (string-append "Data type error: expect " (symbol->string type) "."))
     )
   )
 )
