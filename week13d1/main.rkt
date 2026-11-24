@@ -4,14 +4,21 @@
 (require "interpreter.rkt")
 (require "heap.rkt")
 
-
-
-(define class1 (list 'cls 'rectangle '(w h) (list (list 'func 'size '() (list '(return ((this -> w) * (this -> h))))))))
-
-(parse '(a = 1))
-
-(parse class1)
-(process (parse class1))
+(define prog
+  (list
+   'main
+   '(cls rectangle
+         (width height)
+         (
+          (func size () (return ((this -> width) * (this -> height))))
+          )
+         )
+   '(new_obj = (new rectangle))
+   '((new_obj -> width) = 2)
+   '((new_obj -> height) = 1)
+ )
+)
+(parse prog)
+(process (parse prog))
 (display environment)
-
-(parse '(new_obj = (new rectangle)))
+(display heap)

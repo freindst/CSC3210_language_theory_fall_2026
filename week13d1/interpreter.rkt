@@ -41,8 +41,16 @@
             ;(string-exp (str "abc")) -> (str "abc")
             ((equal? 'string-exp (car parsed-exp)) (car (cdr parsed-exp)))
             ;'(assign-exp ((var-exp a) (num-exp 2)))
-            ((equal? 'assign-exp (car parsed-exp))
+            ((and (equal? 'assign-exp (car parsed-exp)) (equal? 'var-exp (car (car (cadr parsed-exp)))))
                 (wolf_env environment (cadr (car (cadr parsed-exp))) (process (cadr (cadr parsed-exp)))))
+            ;(assign-exp ((property-exp ((var-exp new_obj) (var-exp height))) (num-exp (num 1)))))
+            ((and (equal? 'assign-exp (car parsed-exp)) (equal? 'property-exp (car (car (cadr parsed-exp)))))
+                (set_obj_property 
+                    (cadr (car (cadr (car (cadr parsed-exp)))))
+                    (cadr (cadr (car (cadr parsed-exp))))
+                    (process (cadr (cadr parsed-exp)))
+                )
+            )
             ((eq? 'math-exp (car parsed-exp))   ;math-exp + (math-exp + ...) (num-exp 10)
                 (do_math 
                     (cadr parsed-exp) 
@@ -221,6 +229,22 @@
                 (list
                     'class
                     (cdr parsed-exp)
+                )
+            )
+            ;(constructor-exp (var-exp rectangle))
+            ((eq? (car parsed-exp) 'constructor-exp)
+                ;1 based on the constructor name, resolve-env to get the class definition
+                ;2 initiate the object with parameters default empty value
+                ;3 use create heap item and obtain the heap id(pointer)
+                ;4 insert new variable name and the value. the value is the heap id
+                (let*
+                    (
+                        (class-definition (resolve_env environment (cadr (cadr parsed-exp))))
+                        (parameters (car (cadr class-definition)))
+                        (new-obj  (map (lambda (p) (list p (list 'empty "#empty"))) parameters))
+                        (new-heap-id (create_heap_item new-obj))
+                    )
+                    (list 'object new-heap-id)
                 )
             )
             (else (displayln "ERROR: expression has not been supported yet."))

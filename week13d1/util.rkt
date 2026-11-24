@@ -35,7 +35,7 @@
   (lambda (var_scope var_name)
     (cond
      ((null? var_scope) (void))
-     ((eq? (car (car var_scope)) var_name) (cadr (car var_scope)))
+     ((equal? (car (car var_scope)) var_name) (cadr (car var_scope)))
      (else (resolve (cdr var_scope) var_name))
      )
     )
@@ -71,7 +71,7 @@
   (lambda (left_part lst key value)
     (cond
       ((null? lst) left_part)
-      ((eq? (car (car lst)) key) (append left_part (list (list key value)) (cdr lst)))
+      ((equal? (car (car lst)) key) (append left_part (list (list key value)) (cdr lst)))
       (else (update_pair (append left_part (list (car lst))) (cdr lst) key value))
       )
     )
@@ -277,6 +277,9 @@
       ((equal? 'str (car value)) (cadr value))
       ((equal? 'func (car value)) "<function>")
       ((equal? 'void (car value)) "void")
+      ((equal? 'object (car value)) (cadr value))
+      ;empty type ('#empty '#empty)
+      ((equal? 'empty (car value)) "<empty>")
       (else (error (format "Data type error: unknown data type ~a" value)))
     )
   )

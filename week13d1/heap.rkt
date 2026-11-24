@@ -120,7 +120,7 @@
   (lambda (obj_name property_name property_value)
     (letrec
       (
-        (obj_id (resolve_env environment obj_name))
+        (obj_id (value_to_string (resolve_env environment obj_name)))
         (heap_item (read_heap_item obj_id))
         (new_heap_item (update_scope heap_item property_name property_value))
       )
